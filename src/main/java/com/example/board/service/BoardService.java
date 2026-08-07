@@ -26,7 +26,7 @@ public class BoardService {
     public Page<BoardResponseDto> findAll(Pageable pageable) {
 
         return boardRepository.findAll(pageable)
-                .map(BoardResponseDto::new);
+                .map(BoardResponseDto::from);
     }
 
     public void save(BoardRequestDto dto) {
@@ -77,6 +77,25 @@ public class BoardService {
                         new IllegalArgumentException("게시글이 없습니다."));
 
         boardRepository.delete(board);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<BoardResponseDto> search(
+            String type,
+            String keyword,
+            Pageable pageable) {
+
+        Page<Board> result;
+
+        switch (type) {
+            case "writer":
+                result = boardRepository.findByWriterContaining(keyword, pageable);
+                break;
+
+            default:
+                result = boardRepository.findByTitleContaining(keyword, pageable);
+        }
+        return result.map(BoardResponseDto::from);
     }
 }
 

@@ -1,9 +1,11 @@
 package com.example.board.dto;
 
 import com.example.board.entity.Board;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 public class BoardResponseDto {
 
     private Long id;
@@ -11,10 +13,13 @@ public class BoardResponseDto {
     private String writer;
     private String content;
 
-    public BoardResponseDto(Board board) {
-        this.id = board.getId();
-        this.title = board.getTitle();
-        this.writer = board.getWriter();
-        this.content = board.getContent();
+    public static BoardResponseDto from(Board board) {
+        return BoardResponseDto.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .writer(board.getWriter())
+                .content(board.getContent())
+                .build();
     }
+
 }

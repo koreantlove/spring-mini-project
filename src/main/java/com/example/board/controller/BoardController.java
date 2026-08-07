@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,14 +23,27 @@ public class BoardController {
     private final BoardService boardService;
 
     @GetMapping
-    public String list(@RequestParam(defaultValue = "0") int page, Model model){
+    public String list(@RequestParam(defaultValue = "0") int page,
+                       @RequestParam(required = false) String type,
+                       @RequestParam(required = false) String keyword,
+                       Model model){
 
-        Page<BoardResponseDto> boards = boardService.findAll(
-                        PageRequest.of(page,10, Sort.by(Sort.Direction.DESC, "id")
-                        )
-                );
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").descending());
 
-        model.addAttribute("boards", boards );
+        Page<BoardResponseDto> boards;
+
+        if (keyword == null || keyword.isBlank()) {
+
+            boards = boardService.findAll(pageable);
+
+        } else {
+
+            boards = boardService.search(type, keyword, pageable);
+        }
+
+        model.addAttribute("boards", boards);
+        model.addAttribute("type", type);
+        model.addAttribute("keyword", keyword);
 
         return "board/list";
     }
