@@ -1,10 +1,13 @@
 package com.example.board.service;
 
 import com.example.board.dto.BoardRequestDto;
+import com.example.board.dto.BoardResponseDto;
 import com.example.board.dto.BoardUpdateDto;
 import com.example.board.entity.Board;
 import com.example.board.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,8 +19,14 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
 
-    public List<Board> findAll() {
+    /*public List<Board> findAll() {
         return boardRepository.findAll();
+    }*/
+
+    public Page<BoardResponseDto> findAll(Pageable pageable) {
+
+        return boardRepository.findAll(pageable)
+                .map(BoardResponseDto::new);
     }
 
     public void save(BoardRequestDto dto) {

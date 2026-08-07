@@ -1,10 +1,14 @@
 package com.example.board.controller;
 
 import com.example.board.dto.BoardRequestDto;
+import com.example.board.dto.BoardResponseDto;
 import com.example.board.dto.BoardUpdateDto;
 import com.example.board.service.BoardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,9 +22,14 @@ public class BoardController {
     private final BoardService boardService;
 
     @GetMapping
-    public String list(Model model){
+    public String list(@RequestParam(defaultValue = "0") int page, Model model){
 
-        model.addAttribute("boards", boardService.findAll());
+        Page<BoardResponseDto> boards = boardService.findAll(
+                        PageRequest.of(page,10, Sort.by(Sort.Direction.DESC, "id")
+                        )
+                );
+
+        model.addAttribute("boards", boards );
 
         return "board/list";
     }

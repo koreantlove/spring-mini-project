@@ -20,23 +20,14 @@ public class DataInitializer implements CommandLineRunner {
 
         System.out.println("===== DataInitializer 실행 =====");
 
-        Board board1 = new Board();
-        board1.setTitle("첫 번째 글");
-        board1.setWriter("관리자");
-        board1.setContent("Spring Boot 시작!");
-        boardRepository.save(board1);
+        for (int i = 1; i <= 100; i++) {
+            Board board = new Board();
+            board.setTitle(i + "번째 게시글");
+            board.setWriter("관리자");
+            board.setContent("내용 " + i);
 
-        Board board2 = new Board();
-        board2.setTitle("두 번째 글");
-        board2.setWriter("관리자");
-        board2.setContent("2222222");
-        boardRepository.save(board2);
-
-        Board board3 = new Board();
-        board3.setTitle("세 번째 글");
-        board3.setWriter("관리자");
-        board3.setContent("333333333");
-        boardRepository.save(board3);
+            boardRepository.save(board);
+        }
 
         boardRepository.findAll()
                 .forEach(System.out::println);
