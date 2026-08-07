@@ -2,20 +2,21 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <div th:fragment="header">
+    <head>
+        <meta charset="UTF-8">
 
-    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+        <link
+                href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+                rel="stylesheet">
+    </head>
 
+    <nav class="navbar navbar-dark bg-dark">
         <div class="container">
-
-            <a class="navbar-brand"
-               th:href="@{/boards}">
+            <a class="navbar-brand" th:href="@{/boards}">
                 Spring Board
             </a>
-
         </div>
-
     </nav>
-
 </div>
 
 </html>

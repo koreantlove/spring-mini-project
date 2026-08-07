@@ -1,36 +1,45 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-  <title>글쓰기</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{fragments/header :: header}"></div>
+
 <body>
 
-<h1>게시글 작성</h1>
+<div class="container mt-5">
+    <h2>게시글 작성</h2>
 
-<form th:action="@{/boards}"
-      th:object="${boardRequestDto}"
-      method="post">
+    <form th:action="@{/boards}"
+          th:object="${boardRequestDto}"
+          method="post">
 
-  <input type="text"
-         th:field="*{title}">
+      <div class="mb-3">
+        <label class="form-label">제목</label>
+        <input class="form-control" th:field="*{title}">
+      </div>
 
-  <div th:errors="*{title}"></div>
+      <div class="text-danger" th:errors="*{title}"></div>
 
-  <input type="text"
-         th:field="*{writer}">
+      <div class="mb-3">
+        <label class="form-label">작성자</label>
+        <input class="form-control" th:field="*{writer}">
+      </div>
 
-  <div th:errors="*{writer}"></div>
+      <div class="text-danger" th:errors="*{writer}"></div>
 
-  <textarea th:field="*{content}"></textarea>
+      <div class="mb-3">
+        <label class="form-label">내용</label>
+        <textarea th:field="*{content}"></textarea>
+      </div>
+      <div class="text-danger" th:errors="*{content}"></div>
 
-  <div th:errors="*{content}"></div>
+      <button type="submit" class="btn btn-warning">
+        저장
+      </button>
 
-  <button type="submit">
-    저장
-  </button>
+    </form>
+  </div>
 
-</form>
+  <div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 </html>
