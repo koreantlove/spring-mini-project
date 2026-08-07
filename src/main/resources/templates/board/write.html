@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>글쓰기</title>
+</head>
+<body>
+
+<h1>게시글 작성</h1>
+
+<form th:action="@{/boards}"
+      th:object="${boardRequestDto}"
+      method="post">
+
+  <input type="text"
+         th:field="*{title}">
+
+  <div th:errors="*{title}"></div>
+
+  <input type="text"
+         th:field="*{writer}">
+
+  <div th:errors="*{writer}"></div>
+
+  <textarea th:field="*{content}"></textarea>
+
+  <div th:errors="*{content}"></div>
+
+  <button type="submit">
+    저장
+  </button>
+
+</form>
+
+</body>
+</html>

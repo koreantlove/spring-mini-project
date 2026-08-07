@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Board Project</title>
+</head>
+<body>
+
+    <h1>Spring Boot 시작!</h1>
+
+    <p>첫 번째 페이지입니다.</p>
+
+    <tr th:each="board : ${boards}">
+        <td th:text="${board.id}"></td>
+        <td th:text="${board.title}"></td>
+        <td th:text="${board.nickname}"></td>
+    </tr>
+</body>
+</html>

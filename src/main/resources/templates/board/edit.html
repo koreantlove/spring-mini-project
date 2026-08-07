@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 수정</title>
+</head>
+<body>
+
+<h1>게시글 수정</h1>
+
+<form th:action="@{/boards/{id}(id=${board.id})}" method="post">
+
+  <p>
+    제목
+    <input type="text"
+           name="title"
+           th:value="${board.title}">
+  </p>
+
+  <p>
+    작성자
+    <input type="text"
+           name="writer"
+           th:value="${board.writer}">
+  </p>
+
+  <p>
+    내용
+    <textarea name="content"
+              th:text="${board.content}"></textarea>
+  </p>
+
+  <button type="submit">
+    수정 완료
+  </button>
+
+</form>
+
+</body>
+</html>
