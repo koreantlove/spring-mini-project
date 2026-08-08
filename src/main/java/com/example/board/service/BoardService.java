@@ -7,6 +7,7 @@ import com.example.board.entity.Board;
 import com.example.board.exception.BoardNotFoundException;
 import com.example.board.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BoardService {
@@ -39,6 +41,9 @@ public class BoardService {
         /*if (dto.getTitle().isBlank()) {
             throw new IllegalArgumentException("제목은 필수입니다.");
         }*/
+        log.info("게시글 등록 시작 - title={}, writer={}",
+                dto.getTitle(),
+                dto.getWriter());
 
         Board board = Board.builder()
                 .title(dto.getTitle())
@@ -47,6 +52,7 @@ public class BoardService {
                 .build();
 
         boardRepository.save(board);
+        log.info("게시글 등록 완료 - id={}", board.getId());
     }
 
     // 상세 조회
@@ -56,12 +62,14 @@ public class BoardService {
 
         //Board board = boardRepository.findById(id)
         //        .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
-
+        log.info("게시글 조회 시작 - id={}", id);
         Board board = boardRepository.findById(id)
-                .orElseThrow(() ->
-                        new BoardNotFoundException(id)
+                .orElseThrow(() -> {
+                            log.warn("게시글을 찾을 수 없음 - id={}", id);
+                            return new BoardNotFoundException(id);
+                        }
                 );
-
+        log.info("게시글 조회 완료 - id={}", id);
         return BoardResponseDto.from(board);
     }
 
@@ -71,9 +79,13 @@ public class BoardService {
         //Board board = boardRepository.findById(id)
         //        .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
 
+        log.info("게시글 수정 시작 - id={}", id);
+
         Board board = boardRepository.findById(id)
-                .orElseThrow(() ->
-                        new BoardNotFoundException(id)
+                .orElseThrow(() -> {
+                            log.warn("수정 대상 게시글 없음 - id={}", id);
+                            return new BoardNotFoundException(id);
+                        }
                 );
 
         //board.setTitle(dto.getTitle());
@@ -84,6 +96,7 @@ public class BoardService {
                 dto.getContent()
         );
 
+        log.info("게시글 수정 완료 - id={}", id);
         // 별도의 업데이트 문이 없다.
         // findById()로 조회한 Board는 관리(Managed) 되는 객체이다.
         // 이 객체의 값을 변경하면 JPA가 변경을 감지한다.
@@ -97,11 +110,17 @@ public class BoardService {
 
         //Board board = boardRepository.findById(id)
         //        .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
+        log.info("게시글 삭제 시작 - id={}", id);
 
         Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new BoardNotFoundException(id) );
+                .orElseThrow(() -> {
+                    log.warn("삭제 대상 게시글 없음 - id={}", id);
+                    return new BoardNotFoundException(id);
+                } );
 
         boardRepository.delete(board);
+
+        log.info("게시글 삭제 완료 - id={}", id);
     }
 
     @Transactional(readOnly = true)
@@ -109,6 +128,11 @@ public class BoardService {
             String type,
             String keyword,
             Pageable pageable) {
+
+        log.info(
+                "게시글 검색 - type={}, keyword={}, page={}",
+                type,  keyword, pageable.getPageNumber()
+        );
 
         Page<Board> result;
 
@@ -120,6 +144,9 @@ public class BoardService {
             default:
                 result = boardRepository.findByTitleContaining(keyword, pageable);
         }
+
+        log.info( "게시글 검색 완료 - count={}", result.getTotalElements() );
+
         return result.map(BoardResponseDto::from);
     }
 }
