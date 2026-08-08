@@ -27,13 +27,13 @@
       <span th:text="${board.content}"></span>
     </p>
 
-    <a th:href="@{/boards}" class="btn btn-secondary">목록</a>
-    <a th:href="@{/boards/{id}/edit(id=${board.id})}" class="btn btn-warning">수정</a>
+    <a th:href="@{/boards(page=${page},type=${type},keyword=${keyword})}" class="btn btn-secondary">목록</a>
+    <a th:href="@{/boards/{id}/edit(id=${board.id},page=${page},type=${type},keyword=${keyword})}" class="btn btn-warning">수정</a>
 
 
     <!-- 삭제 기능은 post 권고, get 으로 할 경우, get 으로 호출한 것만으로 삭제가 될 위험 존재 -->
 
-    <form th:action="@{/boards/{id}/delete(id=${board.id})}"
+    <form th:action="@{/boards/{id}/delete(id=${board.id},page=${page},type=${type},keyword=${keyword})}"
           method="post"
           onsubmit="return confirm('정말 삭제하시겠습니까?')">
 

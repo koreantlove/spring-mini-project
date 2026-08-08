@@ -8,7 +8,7 @@
   <div class="container mt-5">
     <h2>게시글 수정</h2>
 
-    <form th:action="@{/boards/{id}(id=${board.id})}" method="post">
+    <form th:action="@{/boards/{id}(id=${board.id},page=${page},type=${type},keyword=${keyword})}" method="post">
       <p>
         제목
         <input type="text" name="title" th:field="${board.title}">

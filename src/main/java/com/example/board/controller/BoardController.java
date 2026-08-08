@@ -50,37 +50,71 @@ public class BoardController {
 
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id,
+                         @RequestParam(defaultValue = "0") int page,
+                         @RequestParam(required = false) String type,
+                         @RequestParam(required = false) String keyword,
                          Model model){
 
-        model.addAttribute("board",
-                boardService.findById(id));
+        //model.addAttribute("board", boardService.findById(id));
+
+        BoardResponseDto board = boardService.findById(id);
+
+        model.addAttribute("board", board);
+
+        model.addAttribute("page", page);
+        model.addAttribute("type", type);
+        model.addAttribute("keyword", keyword);
 
         return "board/detail";
     }
 
     @GetMapping("/{id}/edit")
-    public String editForm(@PathVariable Long id, Model model) {
+    public String editForm(@PathVariable Long id,
+                           @RequestParam(defaultValue = "0") int page,
+                           @RequestParam(required = false) String type,
+                           @RequestParam(required = false) String keyword,
+                           Model model) {
 
         model.addAttribute("board", boardService.findById(id));
+
+        model.addAttribute("page", page);
+        model.addAttribute("type", type);
+        model.addAttribute("keyword", keyword);
 
         return "board/edit";
     }
 
     @PostMapping("/{id}")
     public String update(@PathVariable Long id,
-                         @ModelAttribute BoardUpdateDto dto) {
+                         @Valid @ModelAttribute BoardUpdateDto dto,
+                         BindingResult bindingResult,
+                         @RequestParam(defaultValue = "0") int page,
+                         @RequestParam(required = false) String type,
+                         @RequestParam(required = false) String keyword ) {
 
+        if (bindingResult.hasErrors()) {
+            return "board/edit";
+        }
         boardService.update(id, dto);
 
-        return "redirect:/boards/" + id;
+        return "redirect:/boards/" + id
+                + "?page=" + page
+                + "&type=" + type
+                + "&keyword=" + keyword;
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable Long id,
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(required = false) String type,
+                        @RequestParam(required = false) String keyword) {
 
         boardService.delete(id);
 
-        return "redirect:/boards";
+        return "redirect:/boards"
+                + "?page=" + page
+                + "&type=" + type
+                + "&keyword=" + keyword;
     }
 
     @GetMapping("/new")
