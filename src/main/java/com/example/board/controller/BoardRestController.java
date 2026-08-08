@@ -2,6 +2,7 @@ package com.example.board.controller;
 
 import com.example.board.dto.BoardRequestDto;
 import com.example.board.dto.BoardResponseDto;
+import com.example.board.dto.BoardUpdateDto;
 import com.example.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -55,4 +56,25 @@ public class BoardRestController {
         500 Internal Server Error→ 서버 내부 오류
          */
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> update(
+            @PathVariable Long id,
+            @RequestBody BoardUpdateDto dto) {
+
+        boardService.update(id, dto);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id) {
+
+        boardService.delete(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+
 }
