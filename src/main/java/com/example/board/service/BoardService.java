@@ -4,6 +4,7 @@ import com.example.board.dto.BoardRequestDto;
 import com.example.board.dto.BoardResponseDto;
 import com.example.board.dto.BoardUpdateDto;
 import com.example.board.entity.Board;
+import com.example.board.exception.BoardNotFoundException;
 import com.example.board.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -53,8 +54,13 @@ public class BoardService {
     @Transactional(readOnly = true)
     public BoardResponseDto findById(Long id){
 
+        //Board board = boardRepository.findById(id)
+        //        .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
+
         Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
+                .orElseThrow(() ->
+                        new BoardNotFoundException(id)
+                );
 
         return BoardResponseDto.from(board);
     }
@@ -62,8 +68,13 @@ public class BoardService {
     @Transactional
     public void update(Long id, BoardUpdateDto dto) {
 
+        //Board board = boardRepository.findById(id)
+        //        .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
+
         Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
+                .orElseThrow(() ->
+                        new BoardNotFoundException(id)
+                );
 
         //board.setTitle(dto.getTitle());
         //board.setContent(dto.getContent());
@@ -84,9 +95,11 @@ public class BoardService {
     @Transactional
     public void delete(Long id) {
 
+        //Board board = boardRepository.findById(id)
+        //        .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
+
         Board board = boardRepository.findById(id)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("게시글이 없습니다."));
+                .orElseThrow(() -> new BoardNotFoundException(id) );
 
         boardRepository.delete(board);
     }
