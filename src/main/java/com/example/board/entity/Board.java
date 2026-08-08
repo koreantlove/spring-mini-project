@@ -1,18 +1,16 @@
 package com.example.board.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
-@ToString
-@Entity
+@AllArgsConstructor
 @Table(name = "board")
 public class Board {
 
@@ -29,4 +27,10 @@ public class Board {
 
     private LocalDateTime createdDate;
 
+    public void update(String title,
+                       String content){
+
+        this.title = title;
+        this.content = content;
+    }
 }

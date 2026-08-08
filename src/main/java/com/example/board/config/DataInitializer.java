@@ -21,10 +21,16 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("===== DataInitializer 실행 =====");
 
         for (int i = 1; i <= 100; i++) {
-            Board board = new Board();
-            board.setTitle(i + "번째 게시글");
-            board.setWriter("관리자");
-            board.setContent("내용 " + i);
+            //Board board = new Board();
+            //board.setTitle(i + "번째 게시글");
+            //board.setWriter("관리자");
+            //board.setContent("내용 " + i);
+
+            Board board = Board.builder()
+                    .title( i + "번째 게시글" )
+                    .writer( "DataInitializer" )
+                    .content( "내용 " + i )
+                    .build();
 
             boardRepository.save(board);
         }

@@ -23,32 +23,40 @@ public class BoardService {
         return boardRepository.findAll();
     }*/
 
+    // 조회 전용
+    @Transactional(readOnly = true)
     public Page<BoardResponseDto> findAll(Pageable pageable) {
 
         return boardRepository.findAll(pageable)
                 .map(BoardResponseDto::from);
     }
 
+    // 게시글 저장
+    @Transactional
     public void save(BoardRequestDto dto) {
 
         /*if (dto.getTitle().isBlank()) {
             throw new IllegalArgumentException("제목은 필수입니다.");
         }*/
 
-        Board board = new Board();
-
-        board.setTitle(dto.getTitle());
-        board.setWriter(dto.getWriter());
-        board.setContent(dto.getContent());
+        Board board = Board.builder()
+                .title(dto.getTitle())
+                .writer(dto.getWriter())
+                .content(dto.getContent())
+                .build();
 
         boardRepository.save(board);
     }
 
-    public Board findById(Long id){
+    // 상세 조회
+    // 조회 전용
+    @Transactional(readOnly = true)
+    public BoardResponseDto findById(Long id){
 
-        return boardRepository.findById(id)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("게시글이 존재하지 않습니다."));
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
+
+        return BoardResponseDto.from(board);
     }
 
     @Transactional
@@ -57,9 +65,13 @@ public class BoardService {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
 
-        board.setTitle(dto.getTitle());
-        board.setWriter(dto.getWriter());
-        board.setContent(dto.getContent());
+        //board.setTitle(dto.getTitle());
+        //board.setContent(dto.getContent());
+
+        board.update(
+                dto.getTitle(),
+                dto.getContent()
+        );
 
         // 별도의 업데이트 문이 없다.
         // findById()로 조회한 Board는 관리(Managed) 되는 객체이다.
