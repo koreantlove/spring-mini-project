@@ -1,5 +1,6 @@
 package com.example.board.controller;
 
+import com.example.board.dto.ApiResponse;
 import com.example.board.dto.BoardRequestDto;
 import com.example.board.dto.BoardResponseDto;
 import com.example.board.dto.BoardUpdateDto;
@@ -19,33 +20,39 @@ public class BoardRestController {
     private final BoardService boardService;
 
     @GetMapping
-    public ResponseEntity<Page<BoardResponseDto>> findAll(
+    public ResponseEntity<ApiResponse<Page<BoardResponseDto>>> findAll(
             Pageable pageable) {
 
-        Page<BoardResponseDto> result =
-                boardService.findAll(pageable);
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        boardService.findAll(pageable)
+                )
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BoardResponseDto> findById(
+    public ResponseEntity<ApiResponse<BoardResponseDto>> findById(
             @PathVariable Long id) {
 
         BoardResponseDto result =
                 boardService.findById(id);
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(
+                ApiResponse.success(result)
+        );
     }
 
     @PostMapping
-    public ResponseEntity<Void> save(
+    public ResponseEntity<ApiResponse<Void>> save(
             @Valid @RequestBody BoardRequestDto dto) {
 
         boardService.save(dto);
 
         //return ResponseEntity.ok().build();
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        //return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.success());
 
         /*
         200 OK → 정상적인 요청 처리
@@ -59,22 +66,28 @@ public class BoardRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> update(
+    public ResponseEntity<ApiResponse<Void>> update(
             @PathVariable Long id,
             @Valid @RequestBody BoardUpdateDto dto) {
 
         boardService.update(id, dto);
 
-        return ResponseEntity.ok().build();
+        //return ResponseEntity.ok().build();
+        return ResponseEntity.ok(
+                ApiResponse.success()
+        );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
+    public ResponseEntity<ApiResponse<Void>> delete(
             @PathVariable Long id) {
 
         boardService.delete(id);
 
-        return ResponseEntity.noContent().build();
+        //return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
 

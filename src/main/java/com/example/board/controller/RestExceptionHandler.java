@@ -20,12 +20,13 @@ public class RestExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBoardNotFound(
             BoardNotFoundException e) {
 
-        ErrorResponse response =
-                new ErrorResponse(e.getMessage(), null);
-
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(response);
+                .body(
+                        ErrorResponse.error(
+                                e.getMessage()
+                        )
+                );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -44,13 +45,18 @@ public class RestExceptionHandler {
                 );
 
         ErrorResponse response =
-                new ErrorResponse(
+                new ErrorResponse( false,
                         "입력값이 올바르지 않습니다.",
                         errors
                 );
 
         return ResponseEntity
                 .badRequest()
-                .body(response);
+                .body(
+                        ErrorResponse.validation(
+                                "입력값이 올바르지 않습니다.",
+                                errors
+                        )
+                );
     }
 }

@@ -52,10 +52,10 @@ public class BoardRestControllerWebMvcTest {
 
         // Then
         result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.title").value("1번째 게시글"))
-                .andExpect(jsonPath("$.writer").value("홍길동"))
-                .andExpect(jsonPath("$.content").value("내용"));
+                .andExpect(jsonPath("$.data.id").value(1))
+                .andExpect(jsonPath("$.data.title").value("1번째 게시글"))
+                .andExpect(jsonPath("$.data.writer").value("홍길동"))
+                .andExpect(jsonPath("$.data.content").value("내용"));
 
         verify(boardService)
                 .findById(id);

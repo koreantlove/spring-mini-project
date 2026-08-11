@@ -32,7 +32,7 @@ class BoardRestControllerTest {
 
         // Then
         result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray());;
+                .andExpect(jsonPath("$.data.content").isArray());;
     }
 
     @Test
@@ -95,6 +95,7 @@ class BoardRestControllerTest {
 
         // Then
         result.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
                 .andExpect(
                         jsonPath("$.message")
                                 .value("입력값이 올바르지 않습니다.")
