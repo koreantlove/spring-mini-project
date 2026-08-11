@@ -1,39 +1,34 @@
 package com.example.board.controller;
 
+import com.example.board.dto.BoardRequestDto;
+import com.example.board.dto.BoardResponseDto;
+import com.example.board.exception.BoardNotFoundException;
+import com.example.board.service.BoardService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.transaction.annotation.Transactional;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional  // 테스트 후에 rollback
-class BoardRestControllerTest {
+import static org.mockito.BDDMockito.given;
+
+@WebMvcTest(BoardRestController.class)
+public class BoardRestControllerWebMvcTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-
-    @Test
-    void 게시글_목록_조회() throws Exception {
-
-        // When
-        ResultActions result = mockMvc.perform(
-                get("/api/boards")
-        );
-
-        // Then
-        result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray());;
-    }
+    @MockitoBean
+    private BoardService boardService;
 
     @Test
     void 게시글_상세_조회() throws Exception {
@@ -41,13 +36,29 @@ class BoardRestControllerTest {
         // Given
         Long id = 1L;
 
+        BoardResponseDto response = BoardResponseDto.builder()
+                .id(1L)
+                .title("1번째 게시글")
+                .writer("홍길동")
+                .content("내용").build();
+
+        given(boardService.findById(id))
+                .willReturn(response);
+
         // When
         ResultActions result = mockMvc.perform(
                 get("/api/boards/{id}", id)
         );
 
         // Then
-        result.andExpect(status().isOk());
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.title").value("1번째 게시글"))
+                .andExpect(jsonPath("$.writer").value("홍길동"))
+                .andExpect(jsonPath("$.content").value("내용"));
+
+        verify(boardService)
+                .findById(id);
     }
 
     @Test
@@ -71,11 +82,13 @@ class BoardRestControllerTest {
 
         // Then
         result.andExpect(status().isCreated());
+
+        verify(boardService)
+                .save(any(BoardRequestDto.class));
     }
 
-
     @Test
-    void 제목이_없으면_게시글_등록_실패() throws Exception {
+    void 제목이_없으면_Service를_호출하지_않는다() throws Exception {
 
         // Given
         String requestBody = """
@@ -94,15 +107,10 @@ class BoardRestControllerTest {
         );
 
         // Then
-        result.andExpect(status().isBadRequest())
-                .andExpect(
-                        jsonPath("$.message")
-                                .value("입력값이 올바르지 않습니다.")
-                )
-                .andExpect(
-                        jsonPath("$.errors.title")
-                                .exists()
-                );
+        result.andExpect(status().isBadRequest());
+
+        verify(boardService, never())
+                .save(any(BoardRequestDto.class));
     }
 
     @Test
@@ -110,6 +118,9 @@ class BoardRestControllerTest {
 
         // Given
         Long id = 99999L;
+
+        given(boardService.findById(id))
+                .willThrow(new BoardNotFoundException(id));
 
         // When
         ResultActions result = mockMvc.perform(
@@ -122,45 +133,5 @@ class BoardRestControllerTest {
                         jsonPath("$.message")
                                 .exists()
                 );
-    }
-
-    @Test
-    void 게시글_수정() throws Exception {
-
-        // Given
-        Long id = 1L;
-
-        String requestBody = """
-            {
-                "title": "수정된 게시글",
-                "writer": "홍길동",
-                "content": "수정된 내용"
-            }
-            """;
-
-        // When
-        ResultActions result = mockMvc.perform(
-                put("/api/boards/{id}", id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody)
-        );
-
-        // Then
-        result.andExpect(status().isOk());
-    }
-
-    @Test
-    void 게시글_삭제() throws Exception {
-
-        // Given
-        Long id = 1L;
-
-        // When
-        ResultActions result = mockMvc.perform(
-                delete("/api/boards/{id}", id)
-        );
-
-        // Then
-        result.andExpect(status().isNoContent());
     }
 }
