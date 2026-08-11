@@ -4,6 +4,7 @@ import com.example.board.dto.BoardRequestDto;
 import com.example.board.dto.BoardResponseDto;
 import com.example.board.dto.BoardUpdateDto;
 import com.example.board.service.BoardService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +40,7 @@ public class BoardRestController {
 
     @PostMapping
     public ResponseEntity<Void> save(
-            @RequestBody BoardRequestDto dto) {
+            @Valid @RequestBody BoardRequestDto dto) {
 
         boardService.save(dto);
 
@@ -60,7 +61,7 @@ public class BoardRestController {
     @PutMapping("/{id}")
     public ResponseEntity<Void> update(
             @PathVariable Long id,
-            @RequestBody BoardUpdateDto dto) {
+            @Valid @RequestBody BoardUpdateDto dto) {
 
         boardService.update(id, dto);
 

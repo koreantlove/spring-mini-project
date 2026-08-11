@@ -37,3 +37,34 @@ DELETE http://localhost:8080/api/boards/1
 ### 6. 존재하지 않는 게시글
 GET http://localhost:8080/api/boards/99999
 Accept: application/json
+
+
+### 잘못된 게시글 등록
+POST http://localhost:8080/api/boards
+Content-Type: application/json
+
+{
+  "title": "",
+  "writer": "",
+  "content": ""
+}
+
+### 정상 등록
+POST http://localhost:8080/api/boards
+Content-Type: application/json
+
+{
+"title": "정상 게시글",
+"writer": "홍길동",
+"content": "정상적으로 등록됩니다."
+}
+
+
+### 제목/작성자/내용 모두 없음
+POST http://localhost:8080/api/boards
+Content-Type: application/json
+{
+"title": "",
+"writer": "",
+"content": ""
+}
