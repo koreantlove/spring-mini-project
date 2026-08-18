@@ -4,10 +4,15 @@ import com.example.board.dto.ApiResponse;
 import com.example.board.dto.UserLoginRequestDto;
 import com.example.board.dto.UserRequestDto;
 import com.example.board.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,6 +33,7 @@ public class UserRestController {
                 .body(ApiResponse.success());
     }
 
+    /*
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<Void>> login(
             @Valid @RequestBody UserLoginRequestDto requestDto) {
@@ -35,5 +41,29 @@ public class UserRestController {
         userService.login(requestDto);
 
         return ResponseEntity.ok(ApiResponse.success());
+    }*/
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<Void>> login(
+            @Valid @RequestBody UserLoginRequestDto requestDto,
+            HttpSession session) {
+
+        Authentication authentication =
+                userService.login(requestDto);
+
+        SecurityContext securityContext =
+                SecurityContextHolder.createEmptyContext();
+
+        securityContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        session.setAttribute(
+                HttpSessionSecurityContextRepository
+                        .SPRING_SECURITY_CONTEXT_KEY,
+                securityContext
+        );
+
+        return ResponseEntity
+                .ok(ApiResponse.success());
     }
 }

@@ -7,6 +7,9 @@ import com.example.board.exception.InvalidLoginException;
 import com.example.board.exception.UserAlreadyExistsException;
 import com.example.board.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +21,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public void save(UserRequestDto requestDto) {
@@ -42,8 +46,10 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /* 로그인 기능 변경 ( 직접 -> authenticationManager 사용 )
     @Transactional
     public void login(UserLoginRequestDto requestDto) {
+
 
         User user = userRepository.findByUsername(
                 requestDto.getUsername()
@@ -59,5 +65,15 @@ public class UserService {
                     "아이디 또는 비밀번호가 올바르지 않습니다."
             );
         }
+    }*/
+    public Authentication login(UserLoginRequestDto requestDto) {
+
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(
+                        requestDto.getUsername(),
+                        requestDto.getPassword()
+                );
+
+        return authenticationManager.authenticate(authentication);
     }
 }
