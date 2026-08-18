@@ -1,8 +1,6 @@
 package com.example.board.controller;
 
-import com.example.board.dto.ApiResponse;
-import com.example.board.dto.UserLoginRequestDto;
-import com.example.board.dto.UserRequestDto;
+import com.example.board.dto.*;
 import com.example.board.security.CustomUserDetails;
 import com.example.board.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -17,6 +15,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -97,4 +97,27 @@ public class UserRestController {
         );
     }
 
+    @GetMapping("/admin/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
+
+        List<UserResponse> users = userService.findAllUsers();
+
+        return ResponseEntity.ok(
+                ApiResponse.success(users)
+        );
+    }
+
+    @PutMapping("/{id}/role")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<UserResponse>> updateUserRole(
+            @PathVariable Long id,
+            @Valid @RequestBody UserRoleUpdateRequest request ) {
+
+        UserResponse response = userService.updateUserRole(id, request.getRole());
+
+        return ResponseEntity.ok(
+                ApiResponse.success(response)
+        );
+    }
 }

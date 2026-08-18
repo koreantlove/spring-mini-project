@@ -1,9 +1,6 @@
 package com.example.board.controller;
 
-import com.example.board.dto.ApiResponse;
-import com.example.board.dto.BoardRequestDto;
-import com.example.board.dto.BoardResponseDto;
-import com.example.board.dto.BoardUpdateDto;
+import com.example.board.dto.*;
 import com.example.board.security.CustomUserDetails;
 import com.example.board.service.BoardService;
 import jakarta.validation.Valid;
@@ -12,9 +9,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -95,6 +95,5 @@ public class BoardRestController {
                 .status(HttpStatus.NO_CONTENT)
                 .build();
     }
-
 
 }

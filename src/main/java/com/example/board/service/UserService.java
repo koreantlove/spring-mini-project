@@ -2,8 +2,10 @@ package com.example.board.service;
 
 import com.example.board.dto.UserLoginRequestDto;
 import com.example.board.dto.UserRequestDto;
+import com.example.board.dto.UserResponse;
 import com.example.board.entity.User;
 import com.example.board.exception.InvalidLoginException;
+import com.example.board.exception.ResourceNotFoundException;
 import com.example.board.exception.UserAlreadyExistsException;
 import com.example.board.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -75,5 +79,33 @@ public class UserService {
                 );
 
         return authenticationManager.authenticate(authentication);
+    }
+
+    public List<UserResponse> findAllUsers() {
+
+        return userRepository.findAll()
+                .stream()
+                .map(UserResponse::from)
+                .toList();
+    }
+
+    @Transactional
+    public UserResponse updateUserRole( Long userId, String role) {
+        if (!role.equals("ROLE_USER") && !role.equals("ROLE_ADMIN")) {
+            throw new IllegalArgumentException(
+                    "올바르지 않은 Role입니다."
+            );
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "사용자를 찾을 수 없습니다."
+                        )
+                );
+
+        user.setRole(role);
+        User savedUser = userRepository.save(user);
+
+        return UserResponse.from(savedUser);
     }
 }
