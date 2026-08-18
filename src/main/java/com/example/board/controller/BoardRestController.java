@@ -4,6 +4,7 @@ import com.example.board.dto.ApiResponse;
 import com.example.board.dto.BoardRequestDto;
 import com.example.board.dto.BoardResponseDto;
 import com.example.board.dto.BoardUpdateDto;
+import com.example.board.security.CustomUserDetails;
 import com.example.board.service.BoardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -44,9 +46,10 @@ public class BoardRestController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> save(
-            @Valid @RequestBody BoardRequestDto dto) {
+            @Valid @RequestBody BoardRequestDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        boardService.save(dto);
+        boardService.save(dto, userDetails.getUsername());
 
         //return ResponseEntity.ok().build();
         //return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -68,9 +71,10 @@ public class BoardRestController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> update(
             @PathVariable Long id,
-            @Valid @RequestBody BoardUpdateDto dto) {
+            @Valid @RequestBody BoardUpdateDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        boardService.update(id, dto);
+        boardService.update(id, dto,userDetails.getUsername());
 
         //return ResponseEntity.ok().build();
         return ResponseEntity.ok(
@@ -80,9 +84,10 @@ public class BoardRestController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails ) {
 
-        boardService.delete(id);
+        boardService.delete(id, userDetails.getUsername());
 
         //return ResponseEntity.noContent().build();
         return ResponseEntity

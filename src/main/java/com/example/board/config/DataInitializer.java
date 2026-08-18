@@ -1,17 +1,24 @@
 package com.example.board.config;
 
 import com.example.board.entity.Board;
+import com.example.board.entity.User;
 import com.example.board.repository.BoardRepository;
+import com.example.board.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
 
     private final BoardRepository boardRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(BoardRepository boardRepository) {
+    public DataInitializer(BoardRepository boardRepository, UserRepository userRepository,PasswordEncoder passwordEncoder) {
         this.boardRepository = boardRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -34,9 +41,15 @@ public class DataInitializer implements CommandLineRunner {
 
             boardRepository.save(board);
         }
-
         boardRepository.findAll()
                 .forEach(System.out::println);
+
+        String encodedPassword = passwordEncoder.encode("1234");
+        User user = new User("test01",encodedPassword,"ROLE_USER");
+
+        userRepository.save(user);
+        User user2 = new User("test02",encodedPassword,"ROLE_USER");
+        userRepository.save(user2);
 
         System.out.println("===== DataInitializer 종료 =====");
     }

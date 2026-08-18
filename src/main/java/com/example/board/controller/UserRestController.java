@@ -3,6 +3,7 @@ package com.example.board.controller;
 import com.example.board.dto.ApiResponse;
 import com.example.board.dto.UserLoginRequestDto;
 import com.example.board.dto.UserRequestDto;
+import com.example.board.security.CustomUserDetails;
 import com.example.board.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -66,4 +68,24 @@ public class UserRestController {
         return ResponseEntity
                 .ok(ApiResponse.success());
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<String>> me(
+            @AuthenticationPrincipal CustomUserDetails userDetails ) {
+
+        /* 직접 가져 오는 방식
+            Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+        */
+        return ResponseEntity.ok(
+                //ApiResponse.success(authentication.getName())
+                ApiResponse.success(userDetails.getUsername()
+                        + " / "
+                        + userDetails.getUserId())
+        );
+    }
+
+
 }

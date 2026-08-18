@@ -24,7 +24,8 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/api/boards/**").authenticated()
+                        .requestMatchers("/api/boards/**", "/api/users/me")
+                        .authenticated()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(exception -> exception

@@ -95,7 +95,7 @@ public class BoardController {
         if (bindingResult.hasErrors()) {
             return "board/edit";
         }
-        boardService.update(id, dto);
+        boardService.update(id, dto,"");
 
         return "redirect:/boards/" + id
                 + "?page=" + page
@@ -109,7 +109,7 @@ public class BoardController {
                         @RequestParam(required = false) String type,
                         @RequestParam(required = false) String keyword) {
 
-        boardService.delete(id);
+        boardService.delete(id,"");
 
         return "redirect:/boards"
                 + "?page=" + page
@@ -133,7 +133,7 @@ public class BoardController {
         if (bindingResult.hasErrors()) {
             return "board/write";
         }
-        boardService.save(dto);
+        boardService.save(dto,"");
 
         return "redirect:/boards";
 

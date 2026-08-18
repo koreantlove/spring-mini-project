@@ -10,9 +10,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -36,19 +38,18 @@ public class BoardService {
 
     // 게시글 저장
     @Transactional
-    public void save(BoardRequestDto dto) {
+    public void save(BoardRequestDto dto, String writer) {
 
         /*if (dto.getTitle().isBlank()) {
             throw new IllegalArgumentException("제목은 필수입니다.");
         }*/
-        log.info("게시글 등록 시작 - title={}, writer={}",
-                dto.getTitle(),
-                dto.getWriter());
+        log.info("게시글 등록 시작 - title={}", dto.getTitle());
 
         Board board = Board.builder()
                 .title(dto.getTitle())
-                .writer(dto.getWriter())
                 .content(dto.getContent())
+                .writer(writer)
+                .createdDate(LocalDateTime.now())
                 .build();
 
         boardRepository.save(board);
@@ -74,7 +75,7 @@ public class BoardService {
     }
 
     @Transactional
-    public void update(Long id, BoardUpdateDto dto) {
+    public void update(Long id, BoardUpdateDto dto, String username) {
 
         //Board board = boardRepository.findById(id)
         //        .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
@@ -87,6 +88,13 @@ public class BoardService {
                             return new BoardNotFoundException(id);
                         }
                 );
+
+        if (!board.getWriter().equals(username)) {
+
+            throw new AccessDeniedException(
+                    "게시글을 수정할 권한이 없습니다."
+            );
+        }
 
         //board.setTitle(dto.getTitle());
         //board.setContent(dto.getContent());
@@ -106,7 +114,7 @@ public class BoardService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(Long id, String username) {
 
         //Board board = boardRepository.findById(id)
         //        .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
@@ -117,6 +125,13 @@ public class BoardService {
                     log.warn("삭제 대상 게시글 없음 - id={}", id);
                     return new BoardNotFoundException(id);
                 } );
+
+        if (!board.getWriter().equals(username)) {
+
+            throw new AccessDeniedException(
+                    "게시글을 삭제할 권한이 없습니다."
+            );
+        }
 
         boardRepository.delete(board);
 
