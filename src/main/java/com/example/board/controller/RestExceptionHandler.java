@@ -3,6 +3,7 @@ package com.example.board.controller;
 import com.example.board.dto.ApiResponse;
 import com.example.board.dto.ErrorResponse;
 import com.example.board.exception.BoardNotFoundException;
+import com.example.board.exception.BusinessException;
 import com.example.board.exception.InvalidLoginException;
 import com.example.board.exception.UserAlreadyExistsException;
 import org.springframework.core.annotation.Order;
@@ -107,6 +108,19 @@ public class RestExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(
             AccessDeniedException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(
+                        ErrorResponse.error(
+                                e.getMessage()
+                        )
+                );
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(
+            BusinessException e) {
 
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)

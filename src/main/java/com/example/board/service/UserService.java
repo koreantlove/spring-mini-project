@@ -4,10 +4,12 @@ import com.example.board.dto.UserLoginRequestDto;
 import com.example.board.dto.UserRequestDto;
 import com.example.board.dto.UserResponse;
 import com.example.board.entity.User;
+import com.example.board.exception.BusinessException;
 import com.example.board.exception.InvalidLoginException;
 import com.example.board.exception.ResourceNotFoundException;
 import com.example.board.exception.UserAlreadyExistsException;
 import com.example.board.repository.UserRepository;
+import com.example.board.security.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,7 +46,7 @@ public class UserService {
         User user = User.builder()
                 .username(requestDto.getUsername())
                 .password(encodedPassword)
-                .role("ROLE_USER")
+                .role( UserRole.USER.getAuthority() )
                 .build();
 
         userRepository.save(user);
@@ -91,11 +93,9 @@ public class UserService {
 
     @Transactional
     public UserResponse updateUserRole( Long userId, String role) {
-        if (!role.equals("ROLE_USER") && !role.equals("ROLE_ADMIN")) {
-            throw new IllegalArgumentException(
-                    "올바르지 않은 Role입니다."
-            );
-        }
+
+        UserRole newRole = parseRole(role);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
@@ -103,9 +103,43 @@ public class UserService {
                         )
                 );
 
-        user.setRole(role);
+        String currentRole = user.getRole();
+
+        // 같은 Role이면 변경할 필요 없음
+        if (currentRole.equals(newRole.getAuthority())) {
+            return UserResponse.from(user);
+        }
+
+        // ADMIN → USER로 변경하는 경우
+        if (UserRole.ADMIN.getAuthority().equals(currentRole)
+                && UserRole.USER.equals(newRole)) {
+
+            long adminCount = userRepository.countByRole( UserRole.ADMIN.getAuthority() );
+
+            if (adminCount <= 1) {
+                throw new BusinessException(
+                        "마지막 ADMIN의 권한은 변경할 수 없습니다."
+                );
+            }
+        }
+
+        user.setRole(newRole.getAuthority());
         User savedUser = userRepository.save(user);
 
         return UserResponse.from(savedUser);
+    }
+
+    private UserRole parseRole(String role) {
+
+        for (UserRole userRole : UserRole.values()) {
+
+            if (userRole.getAuthority().equals(role)) {
+                return userRole;
+            }
+        }
+
+        throw new IllegalArgumentException(
+                "올바르지 않은 Role입니다."
+        );
     }
 }
