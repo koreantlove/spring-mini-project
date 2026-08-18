@@ -45,11 +45,15 @@ public class DataInitializer implements CommandLineRunner {
                 .forEach(System.out::println);
 
         String encodedPassword = passwordEncoder.encode("1234");
-        User user = new User("test01",encodedPassword,"ROLE_USER");
 
+        User user = new User("test01",encodedPassword,"ROLE_USER");
         userRepository.save(user);
+
         User user2 = new User("test02",encodedPassword,"ROLE_USER");
         userRepository.save(user2);
+
+        User admin = new User("admin", encodedPassword,"ROLE_ADMIN");
+        userRepository.save(admin);
 
         System.out.println("===== DataInitializer 종료 =====");
     }

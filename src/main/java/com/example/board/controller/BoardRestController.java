@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,9 +73,9 @@ public class BoardRestController {
     public ResponseEntity<ApiResponse<Void>> update(
             @PathVariable Long id,
             @Valid @RequestBody BoardUpdateDto dto,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            Authentication authentication) {
 
-        boardService.update(id, dto,userDetails.getUsername());
+        boardService.update(id, dto, authentication);
 
         //return ResponseEntity.ok().build();
         return ResponseEntity.ok(
@@ -85,9 +86,9 @@ public class BoardRestController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(
             @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails userDetails ) {
+            Authentication authentication ) {
 
-        boardService.delete(id, userDetails.getUsername());
+        boardService.delete(id, authentication );
 
         //return ResponseEntity.noContent().build();
         return ResponseEntity

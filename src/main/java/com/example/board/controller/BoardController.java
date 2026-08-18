@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -90,12 +91,13 @@ public class BoardController {
                          BindingResult bindingResult,
                          @RequestParam(defaultValue = "0") int page,
                          @RequestParam(required = false) String type,
-                         @RequestParam(required = false) String keyword ) {
+                         @RequestParam(required = false) String keyword,
+                         Authentication authentication) {
 
         if (bindingResult.hasErrors()) {
             return "board/edit";
         }
-        boardService.update(id, dto,"");
+        boardService.update(id, dto,authentication);
 
         return "redirect:/boards/" + id
                 + "?page=" + page
@@ -107,9 +109,10 @@ public class BoardController {
     public String delete(@PathVariable Long id,
                         @RequestParam(defaultValue = "0") int page,
                         @RequestParam(required = false) String type,
-                        @RequestParam(required = false) String keyword) {
+                        @RequestParam(required = false) String keyword,
+                         Authentication authentication) {
 
-        boardService.delete(id,"");
+        boardService.delete(id,authentication);
 
         return "redirect:/boards"
                 + "?page=" + page

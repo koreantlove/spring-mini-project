@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,7 +76,7 @@ public class BoardService {
     }
 
     @Transactional
-    public void update(Long id, BoardUpdateDto dto, String username) {
+    public void update(Long id, BoardUpdateDto dto, Authentication authentication) {
 
         //Board board = boardRepository.findById(id)
         //        .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
@@ -89,12 +90,7 @@ public class BoardService {
                         }
                 );
 
-        if (!board.getWriter().equals(username)) {
-
-            throw new AccessDeniedException(
-                    "게시글을 수정할 권한이 없습니다."
-            );
-        }
+        checkBoardPermission(board, authentication);
 
         //board.setTitle(dto.getTitle());
         //board.setContent(dto.getContent());
@@ -114,7 +110,7 @@ public class BoardService {
     }
 
     @Transactional
-    public void delete(Long id, String username) {
+    public void delete(Long id, Authentication authentication) {
 
         //Board board = boardRepository.findById(id)
         //        .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
@@ -126,12 +122,7 @@ public class BoardService {
                     return new BoardNotFoundException(id);
                 } );
 
-        if (!board.getWriter().equals(username)) {
-
-            throw new AccessDeniedException(
-                    "게시글을 삭제할 권한이 없습니다."
-            );
-        }
+        checkBoardPermission(board, authentication);
 
         boardRepository.delete(board);
 
@@ -163,6 +154,23 @@ public class BoardService {
         log.info( "게시글 검색 완료 - count={}", result.getTotalElements() );
 
         return result.map(BoardResponseDto::from);
+    }
+
+    private void checkBoardPermission(
+            Board board,
+            Authentication authentication
+    ) {
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority ->
+                        authority.getAuthority().equals("ROLE_ADMIN")
+                );
+
+        boolean isWriter =
+                board.getWriter().equals(authentication.getName());
+
+        if (!isAdmin && !isWriter) {
+            throw new AccessDeniedException("권한이 없습니다.");
+        }
     }
 }
 

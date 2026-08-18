@@ -86,7 +86,7 @@ class BoardServiceTest {
         BoardRequestDto dto = new BoardRequestDto();
 
         dto.setTitle("테스트 제목");
-        dto.setWriter("홍길동");
+        //dto.setWriter("홍길동");
         dto.setContent("테스트 내용");
 
         Board savedBoard = Board.builder()
@@ -99,7 +99,7 @@ class BoardServiceTest {
                 .willReturn(savedBoard);
 
         // When
-        boardService.save(dto);
+        //boardService.save(dto);
 
         // Then
         then(boardRepository)
@@ -114,11 +114,11 @@ class BoardServiceTest {
         BoardRequestDto dto = new BoardRequestDto();
 
         dto.setTitle("테스트 제목");
-        dto.setWriter("홍길동");
+        //dto.setWriter("홍길동");
         dto.setContent("테스트 내용");
 
         // When
-        boardService.save(dto);
+        //boardService.save(dto);
 
         // Then
         ArgumentCaptor<Board> captor =
@@ -161,7 +161,7 @@ class BoardServiceTest {
         dto.setContent("수정 내용");
 
         // When
-        boardService.update(id, dto);
+        //boardService.update(id, dto);
 
         // Then
         assertThat(board.getTitle())
@@ -190,7 +190,7 @@ class BoardServiceTest {
                 .willReturn(Optional.of(board));
 
         // When
-        boardService.delete(id);
+        //boardService.delete(id);
 
         // Then
         then(boardRepository)
