@@ -38,7 +38,7 @@ public class DataInitializer implements CommandLineRunner {
         User admin = new User("admin", encodedPassword,"ROLE_ADMIN");
         userRepository.save(admin);
 
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 10; i++) {
             //Board board = new Board();
             //board.setTitle(i + "번째 게시글");
             //board.setWriter("관리자");
@@ -54,9 +54,6 @@ public class DataInitializer implements CommandLineRunner {
         }
         boardRepository.findAll()
                 .forEach(System.out::println);
-
-
-
 
 
         System.out.println("===== DataInitializer 종료 =====");

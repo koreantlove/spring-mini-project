@@ -12,6 +12,7 @@ public class BoardResponseDto {
     private String title;
     private String writer;
     private String content;
+    private int viewCount;
 
     public static BoardResponseDto from(Board board) {
         return BoardResponseDto.builder()
@@ -19,6 +20,7 @@ public class BoardResponseDto {
                 .title(board.getTitle())
                 .writer(board.getUser().getUsername())
                 .content(board.getContent())
+                .viewCount(board.getViewCount())
                 .build();
     }
 

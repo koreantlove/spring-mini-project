@@ -20,6 +20,7 @@ public class Board {
 
     private String title;
     private String content;
+    private int viewCount;
 
     private LocalDateTime createdDate;
 
@@ -32,5 +33,9 @@ public class Board {
 
         this.title = title;
         this.content = content;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
     }
 }

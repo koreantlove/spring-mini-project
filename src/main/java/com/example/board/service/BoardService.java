@@ -66,7 +66,7 @@ public class BoardService {
 
     // 상세 조회
     // 조회 전용
-    @Transactional(readOnly = true)
+    @Transactional
     public BoardResponseDto findById(Long id){
 
         //Board board = boardRepository.findById(id)
@@ -78,6 +78,8 @@ public class BoardService {
                             return new BoardNotFoundException(id);
                         }
                 );
+        board.increaseViewCount();
+
         log.info("게시글 조회 완료 - id={}", id);
         return BoardResponseDto.from(board);
     }
