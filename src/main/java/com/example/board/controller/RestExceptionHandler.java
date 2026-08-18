@@ -2,6 +2,7 @@ package com.example.board.controller;
 
 import com.example.board.dto.ErrorResponse;
 import com.example.board.exception.BoardNotFoundException;
+import com.example.board.exception.UserAlreadyExistsException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +57,19 @@ public class RestExceptionHandler {
                         ErrorResponse.validation(
                                 "입력값이 올바르지 않습니다.",
                                 errors
+                        )
+                );
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(
+            UserAlreadyExistsException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        ErrorResponse.error(
+                                e.getMessage()
                         )
                 );
     }
