@@ -1,12 +1,15 @@
 package com.example.board.service;
 
+import com.example.board.dto.UserLoginRequestDto;
 import com.example.board.dto.UserRequestDto;
 import com.example.board.entity.User;
+import com.example.board.exception.InvalidLoginException;
 import com.example.board.exception.UserAlreadyExistsException;
 import com.example.board.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 @RequiredArgsConstructor
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public void save(UserRequestDto requestDto) {
@@ -26,12 +30,34 @@ public class UserService {
             );
         }
 
+        String encodedPassword =
+                passwordEncoder.encode(requestDto.getPassword());
+
         User user = User.builder()
                 .username(requestDto.getUsername())
-                .password(requestDto.getPassword())
+                .password(encodedPassword)
                 .role("ROLE_USER")
                 .build();
 
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void login(UserLoginRequestDto requestDto) {
+
+        User user = userRepository.findByUsername(
+                requestDto.getUsername()
+        ).orElseThrow(() ->
+                new InvalidLoginException("아이디 또는 비밀번호가 올바르지 않습니다.")
+        );
+
+        if (!passwordEncoder.matches(
+                requestDto.getPassword(),
+                user.getPassword())) {
+
+            throw new InvalidLoginException(
+                    "아이디 또는 비밀번호가 올바르지 않습니다."
+            );
+        }
     }
 }
