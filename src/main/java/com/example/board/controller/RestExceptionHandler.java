@@ -1,10 +1,7 @@
 package com.example.board.controller;
 
 import com.example.board.dto.ErrorResponse;
-import com.example.board.exception.BoardNotFoundException;
-import com.example.board.exception.BusinessException;
-import com.example.board.exception.InvalidLoginException;
-import com.example.board.exception.UserAlreadyExistsException;
+import com.example.board.exception.*;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -162,6 +159,21 @@ public class RestExceptionHandler {
                         ErrorResponse.error(
                                 HttpStatus.CONFLICT.value(),
                                 "CONFLICT",
+                                e.getMessage()
+                        )
+                );
+    }
+
+    @ExceptionHandler(CommentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCommentNotFound(
+            CommentNotFoundException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(
+                        ErrorResponse.error(
+                                HttpStatus.NOT_FOUND.value(),
+                                "NOT_FOUND",
                                 e.getMessage()
                         )
                 );
