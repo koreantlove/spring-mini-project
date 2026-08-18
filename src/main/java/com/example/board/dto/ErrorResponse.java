@@ -1,22 +1,40 @@
 package com.example.board.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Getter
-@AllArgsConstructor
 public class ErrorResponse {
 
-    private boolean success;
-    private String message;
+    private final int status;
+    private final String error;
+    private final String message;
+    private final LocalDateTime timestamp;
+    private final Map<String, String> validationErrors;
 
-    private Map<String, String> errors;
+    private ErrorResponse(
+            int status,
+            String error,
+            String message,
+            Map<String, String> validationErrors
+    ) {
+        this.status = status;
+        this.error = error;
+        this.message = message;
+        this.validationErrors = validationErrors;
+        this.timestamp = LocalDateTime.now();
+    }
 
-    public static ErrorResponse error(String message) {
+    public static ErrorResponse error(
+            int status,
+            String error,
+            String message
+    ) {
         return new ErrorResponse(
-                false,
+                status,
+                error,
                 message,
                 null
         );
@@ -24,12 +42,13 @@ public class ErrorResponse {
 
     public static ErrorResponse validation(
             String message,
-            Map<String, String> errors) {
-
+            Map<String, String> validationErrors
+    ) {
         return new ErrorResponse(
-                false,
+                400,
+                "VALIDATION_ERROR",
                 message,
-                errors
+                validationErrors
         );
     }
 }

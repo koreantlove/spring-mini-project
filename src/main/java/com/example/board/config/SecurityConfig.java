@@ -38,6 +38,13 @@ public class SecurityConfig {
                                     );
                                 }
                         )
+                        .accessDeniedHandler(
+                                (request, response, accessDeniedException) -> {
+                                    response.setStatus(
+                                            HttpServletResponse.SC_FORBIDDEN
+                                    );
+                                }
+                        )
                 );
 
         return http.build();
