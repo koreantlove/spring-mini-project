@@ -17,7 +17,7 @@ public class BoardResponseDto {
         return BoardResponseDto.builder()
                 .id(board.getId())
                 .title(board.getTitle())
-                .writer(board.getWriter())
+                .writer(board.getUser().getUsername())
                 .content(board.getContent())
                 .build();
     }

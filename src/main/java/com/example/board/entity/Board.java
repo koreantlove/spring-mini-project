@@ -19,13 +19,13 @@ public class Board {
     private Long id;
 
     private String title;
-
-    private String writer;
-
-    @Column(length = 2000)
     private String content;
 
     private LocalDateTime createdDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public void update(String title,
                        String content){

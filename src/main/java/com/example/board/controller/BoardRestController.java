@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,12 +26,29 @@ public class BoardRestController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<BoardResponseDto>>> findAll(
-            Pageable pageable) {
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String keyword,
+            @PageableDefault(
+                    size = 10,
+                    sort = "id",
+                    direction = Sort.Direction.DESC
+            ) Pageable pageable) {
+
+        Page<BoardResponseDto> result;
+
+        if (keyword == null || keyword.isBlank()) {
+            result = boardService.findAll(pageable);
+
+        } else {
+            result = boardService.search(
+                    type,
+                    keyword.trim(),
+                    pageable
+            );
+        }
 
         return ResponseEntity.ok(
-                ApiResponse.success(
-                        boardService.findAll(pageable)
-                )
+                ApiResponse.success(result)
         );
     }
 
@@ -48,9 +67,9 @@ public class BoardRestController {
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> save(
             @Valid @RequestBody BoardRequestDto dto,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            Authentication authentication) {
 
-        boardService.save(dto, userDetails.getUsername());
+        boardService.save(dto, authentication);
 
         //return ResponseEntity.ok().build();
         //return ResponseEntity.status(HttpStatus.CREATED).build();

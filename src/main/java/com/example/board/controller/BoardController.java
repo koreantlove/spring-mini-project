@@ -3,6 +3,7 @@ package com.example.board.controller;
 import com.example.board.dto.BoardRequestDto;
 import com.example.board.dto.BoardResponseDto;
 import com.example.board.dto.BoardUpdateDto;
+import com.example.board.security.CustomUserDetails;
 import com.example.board.service.BoardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -131,12 +133,13 @@ public class BoardController {
 
     @PostMapping
     public String save(@Valid @ModelAttribute BoardRequestDto dto,
-                       BindingResult bindingResult) {
+                       BindingResult bindingResult,
+                       Authentication authentication) {
 
         if (bindingResult.hasErrors()) {
             return "board/write";
         }
-        boardService.save(dto,"");
+        boardService.save(dto, authentication);
 
         return "redirect:/boards";
 

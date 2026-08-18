@@ -4,8 +4,10 @@ import com.example.board.dto.BoardRequestDto;
 import com.example.board.dto.BoardResponseDto;
 import com.example.board.dto.BoardUpdateDto;
 import com.example.board.entity.Board;
+import com.example.board.entity.User;
 import com.example.board.exception.BoardNotFoundException;
 import com.example.board.repository.BoardRepository;
+import com.example.board.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -39,17 +41,22 @@ public class BoardService {
 
     // 게시글 저장
     @Transactional
-    public void save(BoardRequestDto dto, String writer) {
+    public void save(BoardRequestDto dto, Authentication authentication) {
 
         /*if (dto.getTitle().isBlank()) {
             throw new IllegalArgumentException("제목은 필수입니다.");
         }*/
         log.info("게시글 등록 시작 - title={}", dto.getTitle());
 
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        User user = userDetails.getUser();
+
         Board board = Board.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .writer(writer)
+                .user(user)
                 .createdDate(LocalDateTime.now())
                 .build();
 
@@ -144,11 +151,18 @@ public class BoardService {
 
         switch (type) {
             case "writer":
-                result = boardRepository.findByWriterContaining(keyword, pageable);
+                result = boardRepository.findByUser_UsernameContaining(keyword, pageable);
                 break;
-
-            default:
+            case "content":
+                result = boardRepository.findByContentContaining(keyword, pageable);
+                break;
+            case "title":
                 result = boardRepository.findByTitleContaining(keyword, pageable);
+                break;
+            default:
+                throw new IllegalArgumentException(
+                        "검색 타입이 올바르지 않습니다."
+                );
         }
 
         log.info( "게시글 검색 완료 - count={}", result.getTotalElements() );
@@ -166,7 +180,7 @@ public class BoardService {
                 );
 
         boolean isWriter =
-                board.getWriter().equals(authentication.getName());
+                board.getUser().getUsername().equals(authentication.getName());
 
         if (!isAdmin && !isWriter) {
             throw new AccessDeniedException("권한이 없습니다.");
