@@ -35,8 +35,10 @@ public class BoardService {
     @Transactional(readOnly = true)
     public Page<BoardResponseDto> findAll(Pageable pageable) {
 
-        return boardRepository.findAll(pageable)
-                .map(BoardResponseDto::from);
+        //return boardRepository.findAll(pageable)
+        //        .map(BoardResponseDto::from);
+
+        return boardRepository.findAllWithUser(pageable).map(BoardResponseDto::from);
     }
 
     // 게시글 저장

@@ -58,8 +58,13 @@ public class CommentService {
             Long boardId
     ) {
 
-        return commentRepository
+        /*return commentRepository
                 .findByBoardIdOrderByIdAsc(boardId)
+                .stream()
+                .map(CommentResponseDto::from)
+                .toList();*/
+        return commentRepository
+                .findByBoardIdWithUser(boardId)
                 .stream()
                 .map(CommentResponseDto::from)
                 .toList();

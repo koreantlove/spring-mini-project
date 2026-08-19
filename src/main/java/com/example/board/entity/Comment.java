@@ -20,7 +20,7 @@ public class Comment {
     @Column(nullable = false, length = 1000)
     private String content;
 
-    @Column(nullable = false)
+    //@Column(nullable = false)
     private LocalDateTime createdDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
