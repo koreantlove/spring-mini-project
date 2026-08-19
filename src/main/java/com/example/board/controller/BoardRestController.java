@@ -3,6 +3,9 @@ package com.example.board.controller;
 import com.example.board.dto.*;
 import com.example.board.security.CustomUserDetails;
 import com.example.board.service.BoardService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,9 +28,22 @@ import java.util.List;
 public class BoardRestController {
     private final BoardService boardService;
 
+    @Operation(
+            summary = "게시글 목록 조회",
+            description = "게시글을 검색 조건과 페이징 조건에 따라 조회합니다."
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "게시글 목록 조회 성공"
+    )
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<BoardResponseDto>>> findAll(
+    public ResponseEntity<ApiResponse<PageResponse<BoardResponseDto>>> findAll(
+            @Parameter(description = "검색 대상",example = "title",
+                    schema = @Schema(
+                        type = "string",
+                        allowableValues = {"title", "content"} ))
             @RequestParam(required = false) String type,
+            @Parameter(description = "검색어",example = "Spring")
             @RequestParam(required = false) String keyword,
             @PageableDefault(
                     size = 10,
@@ -49,7 +65,7 @@ public class BoardRestController {
         }
 
         return ResponseEntity.ok(
-                ApiResponse.success(result)
+                ApiResponse.success(PageResponse.from(result))
         );
     }
 
