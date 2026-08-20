@@ -28,6 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Transactional
     public void save(UserRequestDto requestDto) {
@@ -72,7 +73,7 @@ public class UserService {
             );
         }
     }*/
-    public Authentication login(UserLoginRequestDto requestDto) {
+    public String login(UserLoginRequestDto requestDto) {
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(
@@ -80,7 +81,10 @@ public class UserService {
                         requestDto.getPassword()
                 );
 
-        return authenticationManager.authenticate(authentication);
+        Authentication authenticated =
+                authenticationManager.authenticate(authentication);
+
+        return jwtService.createToken(authenticated.getName());
     }
 
     public List<UserResponse> findAllUsers() {

@@ -43,7 +43,6 @@ class BoardServiceTest {
 
         Board board = Board.builder()
                 .title("1번째 게시글")
-                .writer("DataInitializer")
                 .content("내용 1")
                 .build();
 
@@ -91,7 +90,6 @@ class BoardServiceTest {
 
         Board savedBoard = Board.builder()
                 .title("테스트 제목")
-                .writer("홍길동")
                 .content("테스트 내용")
                 .build();
 
@@ -133,8 +131,7 @@ class BoardServiceTest {
         assertThat(savedBoard.getTitle())
                 .isEqualTo("테스트 제목");
 
-        assertThat(savedBoard.getWriter())
-                .isEqualTo("홍길동");
+        //assertThat(savedBoard.getWriter()).isEqualTo("홍길동");
 
         assertThat(savedBoard.getContent())
                 .isEqualTo("테스트 내용");
@@ -148,7 +145,6 @@ class BoardServiceTest {
 
         Board board = Board.builder()
                 .title("기존 제목")
-                .writer("홍길동")
                 .content("기존 내용")
                 .build();
 
@@ -170,8 +166,7 @@ class BoardServiceTest {
         assertThat(board.getContent())
                 .isEqualTo("수정 내용");
 
-        assertThat(board.getWriter())
-                .isEqualTo("홍길동");
+        //assertThat(board.getWriter()).isEqualTo("홍길동");
     }
 
     @Test
@@ -182,7 +177,6 @@ class BoardServiceTest {
 
         Board board = Board.builder()
                 .title("삭제할 글")
-                .writer("홍길동")
                 .content("내용")
                 .build();
 

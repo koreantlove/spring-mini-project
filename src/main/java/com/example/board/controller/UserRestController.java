@@ -47,13 +47,15 @@ public class UserRestController {
     }*/
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Void>> login(
+    public ResponseEntity<ApiResponse<JwtResponse>> login(
             @Valid @RequestBody UserLoginRequestDto requestDto,
             HttpSession session) {
 
-        Authentication authentication =
-                userService.login(requestDto);
+        //Authentication authentication = userService.login(requestDto);
+        String token = userService.login(requestDto);
+        JwtResponse response = new JwtResponse(token);
 
+        /*
         SecurityContext securityContext =
                 SecurityContextHolder.createEmptyContext();
 
@@ -65,9 +67,10 @@ public class UserRestController {
                         .SPRING_SECURITY_CONTEXT_KEY,
                 securityContext
         );
+        */
 
         return ResponseEntity
-                .ok(ApiResponse.success());
+                .ok(ApiResponse.success(response));
     }
 
     @GetMapping("/me")
