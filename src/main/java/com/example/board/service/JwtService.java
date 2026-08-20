@@ -25,7 +25,7 @@ public class JwtService {
         );
     }
 
-    public String createToken(String username) {
+    public String createToken(String username, String role) {
 
         Date now = new Date();
 
@@ -35,6 +35,7 @@ public class JwtService {
 
         return Jwts.builder()
                 .subject(username)
+                .claim("role", role)
                 .issuedAt(now)
                 .expiration(expiration)
                 .signWith(key)

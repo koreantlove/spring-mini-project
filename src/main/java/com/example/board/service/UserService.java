@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -84,7 +85,12 @@ public class UserService {
         Authentication authenticated =
                 authenticationManager.authenticate(authentication);
 
-        return jwtService.createToken(authenticated.getName());
+        String role = authenticated.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElse("");
+
+        return jwtService.createToken(authenticated.getName(), role);
     }
 
     public List<UserResponse> findAllUsers() {

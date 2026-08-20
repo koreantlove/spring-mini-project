@@ -12,8 +12,8 @@ class JwtServiceTest {
     void JWT_생성_및_검증() {
 
         String username = "test1";
-
-        String token = jwtService.createToken(username);
+        String role = "ROLE_ADMIN";
+        String token = jwtService.createToken(username,role);
 
         System.out.println("JWT = " + token);
 
