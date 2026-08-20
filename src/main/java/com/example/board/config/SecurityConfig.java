@@ -52,6 +52,7 @@ public class SecurityConfig {
                         )
                 )
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> {})
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.sameOrigin())
                 )
