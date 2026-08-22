@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '../api/axios'
+import { setAccessToken } from '../utils/auth'
 
 const username = ref('')
 const password = ref('')
@@ -20,7 +21,7 @@ const login = async () => {
     console.log('login response:', response.data)
     const token = response.data.data.accessToken
 
-    localStorage.setItem('accessToken', token)
+    setAccessToken(token)
     message.value = '로그인 성공'
 
     const redirect = route.query.redirect || '/boards'

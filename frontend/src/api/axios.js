@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { logout } from '../utils/auth'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -29,8 +30,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 &&
         error.config?.url !== '/api/users/login' ) {
-      localStorage.removeItem('accessToken')
-
+      logout()
       window.location.href = '/login'
     }
 

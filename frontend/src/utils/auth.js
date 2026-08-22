@@ -1,9 +1,29 @@
+import { ref, computed } from 'vue'
+
+export const accessToken = ref(
+  localStorage.getItem('accessToken')
+)
+
 export const getAccessToken = () => {
-  return localStorage.getItem('accessToken')
+  return accessToken.value
+}
+
+export const isAuthenticated = () => {
+  return !!accessToken.value
+}
+
+export const setAccessToken = (token) => {
+  localStorage.setItem('accessToken', token)
+  accessToken.value = token
+}
+
+export const logout = () => {
+  localStorage.removeItem('accessToken')
+  accessToken.value = null
 }
 
 export const getJwtPayload = () => {
-  const token = getAccessToken()
+  const token = accessToken.value
 
   if (!token) {
     return null
@@ -35,13 +55,3 @@ export const hasRole = (role) => {
 export const isAdmin = () => {
   return hasRole('ROLE_ADMIN')
 }
-
-export const isAuthenticated = () => {
-  return !!getAccessToken()
-}
-
-export const logout = () => {
-  localStorage.removeItem('accessToken')
-}
-
-
