@@ -35,3 +35,13 @@ export const hasRole = (role) => {
 export const isAdmin = () => {
   return hasRole('ROLE_ADMIN')
 }
+
+export const isAuthenticated = () => {
+  return !!getAccessToken()
+}
+
+export const logout = () => {
+  localStorage.removeItem('accessToken')
+}
+
+

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { isAuthenticated,isAdmin,} from '../utils/auth'
 
 import LoginView from '../views/LoginView.vue'
 import BoardListView from '../views/BoardListView.vue'
@@ -24,21 +25,34 @@ const router = createRouter({
     {
       path: '/boards/:boardId',
       name: 'board-detail',
-      component: BoardDetailView
+      component: BoardDetailView,
+      meta: {
+        requiresAuth: true,
+      }
     },
   ],
 })
 
 router.beforeEach((to) => {
-  const token = localStorage.getItem('accessToken')
+  const authenticated = isAuthenticated()
 
-  if (to.meta.requiresAuth && !token) {
+  if (to.meta.requiresAuth && !authenticated) {
     return {
-      name: 'login',
-    }
+        path: '/login',
+        query: {
+                redirect: to.fullPath,
+              },
+      }
+  }
+
+  if (to.meta.requiresAdmin && !isAdmin()) {
+    return '/boards'
+  }
+
+  if (to.path === '/login' && authenticated) {
+    return '/boards'
   }
 
   return true
 })
-
 export default router

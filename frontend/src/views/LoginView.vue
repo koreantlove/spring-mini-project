@@ -1,12 +1,13 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import api from '../api/axios'
 
 const username = ref('')
 const password = ref('')
 const message = ref('')
 
+const route = useRoute()
 const router = useRouter()
 
 const login = async () => {
@@ -17,13 +18,13 @@ const login = async () => {
     })
 
     console.log('login response:', response.data)
-
     const token = response.data.data.accessToken
 
     localStorage.setItem('accessToken', token)
-
     message.value = '로그인 성공'
-    router.push('/boards')
+
+    const redirect = route.query.redirect || '/boards'
+    router.push(redirect)
 
   } catch (error) {
     console.error(error)
