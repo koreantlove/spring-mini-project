@@ -3,6 +3,8 @@ package com.example.board.controller;
 import com.example.board.dto.*;
 import com.example.board.security.CustomUserDetails;
 import com.example.board.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -111,6 +113,11 @@ public class UserRestController {
         );
     }
 
+    @Operation(
+            summary = "사용자 권한 변경",
+            description = "ADMIN 권한을 가진 사용자만 다른 사용자의 Role을 변경할 수 있습니다."
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UserResponse>> updateUserRole(

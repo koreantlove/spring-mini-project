@@ -1,10 +1,12 @@
 package com.example.board.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
+@Schema(description = "공통 API 응답")
 public class ApiResponse<T> {
 
     private boolean success;

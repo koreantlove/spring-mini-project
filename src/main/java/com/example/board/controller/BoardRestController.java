@@ -6,8 +6,11 @@ import com.example.board.service.BoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,18 +27,28 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/boards")
 public class BoardRestController {
     private final BoardService boardService;
 
     @Operation(
             summary = "게시글 목록 조회",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
             description = "게시글을 검색 조건과 페이징 조건에 따라 조회합니다."
     )
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "200",
-            description = "게시글 목록 조회 성공"
-    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "게시글 목록 조회 성공"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401",
+                    description = "인증되지 않은 사용자"
+            )
+    })
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<BoardResponseDto>>> findAll(
             @Parameter(description = "검색 대상",example = "title",
@@ -45,6 +58,7 @@ public class BoardRestController {
             @RequestParam(required = false) String type,
             @Parameter(description = "검색어",example = "Spring")
             @RequestParam(required = false) String keyword,
+            @ParameterObject
             @PageableDefault(
                     size = 10,
                     sort = "id",
@@ -69,8 +83,18 @@ public class BoardRestController {
         );
     }
 
+    @Operation(
+            summary = "게시글 상세 조회",
+            description = "게시글 ID를 이용하여 게시글 상세 정보를 조회합니다."
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<BoardResponseDto>> findById(
+            @Parameter(
+                    description = "조회할 게시글 ID",
+                    example = "1",
+                    required = true
+            )
             @PathVariable Long id) {
 
         BoardResponseDto result =
@@ -81,6 +105,25 @@ public class BoardRestController {
         );
     }
 
+    @Operation(
+            summary = "게시글 작성",
+            description = "로그인한 사용자가 게시글을 작성합니다."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "201",
+                    description = "게시글 작성 성공"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 게시글 데이터"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401",
+                    description = "인증되지 않은 사용자"
+            )
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> save(
             @Valid @RequestBody BoardRequestDto dto,
@@ -105,6 +148,29 @@ public class BoardRestController {
          */
     }
 
+    @Operation(
+            summary = "게시글 수정",
+            description = "게시글 작성자 본인 또는 ADMIN 권한을 가진 사용자만 수정할 수 있습니다."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "게시글 수정 성공"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401",
+                    description = "인증되지 않은 사용자"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "403",
+                    description = "게시글 수정 권한 없음"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "게시글을 찾을 수 없음"
+            )
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> update(
             @PathVariable Long id,
@@ -119,6 +185,11 @@ public class BoardRestController {
         );
     }
 
+    @Operation(
+            summary = "게시글 삭제",
+            description = "게시글 작성자 본인 또는 ADMIN 권한을 가진 사용자만 삭제할 수 있습니다."
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(
             @PathVariable Long id,

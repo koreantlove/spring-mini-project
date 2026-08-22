@@ -303,7 +303,7 @@ onMounted(async () => {
          <button
            v-if="canModifyComment(comment)"
            type="button"
-           @click="removeComment(comment.commentId)"
+           @click="removeComment(comment.id)"
          >
            삭제
          </button>
