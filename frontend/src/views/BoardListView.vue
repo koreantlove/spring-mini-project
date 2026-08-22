@@ -1,59 +1,154 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import api from '../api/axios'
-
-import { computed } from 'vue'
-import { getRole } from '../utils/jwt'
+import { getBoards } from '../api/board'
 
 const boards = ref([])
-const error = ref('')
 
-const router = useRouter()
+const loading = ref(false)
+const errorMessage = ref('')
 
-const role = computed(() => getRole())
+const currentPage = ref(0)
+const pageSize = ref(10)
+const totalPages = ref(0)
+const totalElements = ref(0)
 
-const getBoards = async () => {
+const searchType = ref('title')
+const keyword = ref('')
+
+const loadBoards = async () => {
+  loading.value = true
+  errorMessage.value = ''
+
   try {
-    const response = await api.get('/api/boards')
+    const response = await getBoards({
+      page: currentPage.value,
+      size: pageSize.value,
+      type: searchType.value,
+      keyword: keyword.value,
+    })
 
-    console.log('board response:', response.data)
+    const data = response.data.data
 
-    boards.value = response.data.data.content
+    boards.value = data.content
+    totalPages.value = data.totalPages
+    totalElements.value = data.totalElements
+
   } catch (error) {
-    console.error(error)
+    console.error('게시글 조회 실패:', error)
 
-    error.value = '게시글 조회에 실패했습니다.'
+    errorMessage.value = '게시글을 불러오지 못했습니다.'
+  } finally {
+    loading.value = false
   }
 }
 
-const logout = () => {
-  localStorage.removeItem('accessToken')
+onMounted(() => {
+  loadBoards()
+})
 
-  router.push('/login')
+const goToPage = (page) => {
+  if (page < 0 || page >= totalPages.value) {
+    return
+  }
+
+  currentPage.value = page
+  loadBoards()
 }
 
+const search = async () => {
+  console.log('검색 실행')
+  console.log('검색 타입:', searchType.value)
+  console.log('검색어:', keyword.value)
 
-onMounted(() => {
-  getBoards()
-})
+  currentPage.value = 0
+
+  await loadBoards()
+}
 
 </script>
 
+
+
 <template>
-  <main>
-    <h1>게시글 목록</h1>
-    <p>
-      현재 권한: {{ role }}
+  <div>
+    <h1>게시글</h1>
+
+    <p v-if="loading">
+      게시글을 불러오는 중입니다...
     </p>
-    <button @click="logout"> 로그아웃 </button>
 
-    <p v-if="error"> {{ error }} </p>
+    <p v-if="errorMessage">
+      {{ errorMessage }}
+    </p>
 
-    <ul>
-      <li v-for="board in boards" :key="board.id" >
-        {{ board.title }}
-      </li>
-    </ul>
-  </main>
+    <div class="search-area">
+      <select v-model="searchType">
+        <option value="title">제목</option>
+        <option value="content">내용</option>
+        <option value="writer">작성자</option>
+      </select>
+
+      <input
+        v-model="keyword"
+        type="text"
+        placeholder="검색어를 입력하세요"
+      />
+
+      <button
+        type="button"
+        @click="search"
+      >
+        검색
+      </button>
+    </div>
+
+    <table v-if="!loading && boards.length > 0">
+      <thead>
+        <tr>
+          <th>번호</th>
+          <th>제목</th>
+          <th>작성자</th>
+          <th>조회수</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          v-for="board in boards"
+          :key="board.boardId"
+        >
+          <td>{{ board.id }}</td>
+          <td>
+            <RouterLink :to="`/boards/${board.id}`">
+              {{ board.title }}
+            </RouterLink>
+          </td>
+          <td>{{ board.writer }}</td>
+          <td>{{ board.viewCount }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p v-if="!loading && boards.length === 0">
+      게시글이 없습니다.
+    </p>
+  </div>
+
+  <div v-if="totalPages > 0">
+    <button :disabled="currentPage === 0"  @click="goToPage(currentPage - 1)">
+      이전
+    </button>
+
+    <button v-for="page in totalPages" :key="page" :disabled="currentPage === page - 1"
+      @click="goToPage(page - 1)"
+    >
+      {{ page }}
+    </button>
+
+    <button :disabled="currentPage === totalPages - 1" @click="goToPage(currentPage + 1)"
+    >
+      다음
+    </button>
+  </div>
+
 </template>

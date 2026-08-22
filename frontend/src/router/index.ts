@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import LoginView from '../views/LoginView.vue'
 import BoardListView from '../views/BoardListView.vue'
+import BoardDetailView from '../views/BoardDetailView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -19,6 +20,11 @@ const router = createRouter({
       meta: {
               requiresAuth: true,
             },
+    },
+    {
+      path: '/boards/:boardId',
+      name: 'board-detail',
+      component: BoardDetailView
     },
   ],
 })
