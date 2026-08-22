@@ -1,8 +1,6 @@
 package com.example.board.service;
 
-import com.example.board.dto.UserLoginRequestDto;
-import com.example.board.dto.UserRequestDto;
-import com.example.board.dto.UserResponse;
+import com.example.board.dto.*;
 import com.example.board.entity.User;
 import com.example.board.exception.BusinessException;
 import com.example.board.exception.InvalidLoginException;
@@ -10,7 +8,9 @@ import com.example.board.exception.ResourceNotFoundException;
 import com.example.board.exception.UserAlreadyExistsException;
 import com.example.board.repository.UserRepository;
 import com.example.board.security.UserRole;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +18,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -74,7 +76,7 @@ public class UserService {
             );
         }
     }*/
-    public String login(UserLoginRequestDto requestDto) {
+    public JwtResponse login(UserLoginRequestDto requestDto) {
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(
@@ -90,7 +92,29 @@ public class UserService {
                 .map(GrantedAuthority::getAuthority)
                 .orElse("");
 
-        return jwtService.createToken(authenticated.getName(), role);
+
+        //return jwtService.createToken(authenticated.getName(), role);
+
+        String accessToken = jwtService.createToken( authenticated.getName(), role );
+        String refreshToken =jwtService.generateRefreshToken( authenticated.getName() );
+
+        return new JwtResponse(accessToken, refreshToken);
+    }
+
+    public String refreshAccessToken(String refreshToken) {
+
+        if (!jwtService.validateRefreshToken(refreshToken)) {
+            throw new InvalidLoginException("유효하지 않은 Refresh Token입니다.");
+        }
+
+        String username = jwtService.getUsername(refreshToken);
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() ->
+                        new InvalidLoginException("사용자를 찾을 수 없습니다.")
+                );
+
+        return jwtService.createToken(user.getUsername(), user.getRole());
     }
 
     public List<UserResponse> findAllUsers() {

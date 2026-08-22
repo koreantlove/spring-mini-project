@@ -19,6 +19,7 @@ export const setAccessToken = (token) => {
 
 export const logout = () => {
   localStorage.removeItem('accessToken')
+  localStorage.removeItem('refreshToken')
   accessToken.value = null
 }
 

@@ -22,6 +22,8 @@ const login = async () => {
     const token = response.data.data.accessToken
 
     setAccessToken(token)
+
+    localStorage.setItem('refreshToken', response.data.data.refreshToken )
     message.value = '로그인 성공'
 
     const redirect = route.query.redirect || '/boards'

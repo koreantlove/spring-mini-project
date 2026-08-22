@@ -1,5 +1,8 @@
 import axios from 'axios'
 import { logout } from '../utils/auth'
+import router from '../router'
+
+let refreshPromise = null
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -24,17 +27,66 @@ api.interceptors.request.use(
 )
 
 api.interceptors.response.use(
-  (response) => {
-    return response
-  },
-  (error) => {
-    if (error.response?.status === 401 &&
-        error.config?.url !== '/api/users/login' ) {
-      logout()
-      window.location.href = '/login'
-    }
+    (response) => response,
 
-    return Promise.reject(error)
-  }
+    async (error) => {
+
+        const originalRequest = error.config
+
+        if ( error.response?.status === 401 &&
+            !originalRequest._retry &&
+            !originalRequest._isRefreshRequest ) {
+
+            originalRequest._retry = true
+
+            const refreshToken = localStorage.getItem('refreshToken')
+
+            if (!refreshToken) {
+                return Promise.reject(error)
+            }
+
+            try {
+
+                if (!refreshPromise) {
+                    refreshPromise = api.post(
+                        '/api/users/refresh',
+                        {
+                            refreshToken
+                        },
+                        {
+                            _isRefreshRequest: true
+                        }
+                    )
+                    .finally(() => {
+                        refreshPromise = null
+                    })
+                }
+                const response = await refreshPromise
+
+                const newAccessToken = response.data.data.accessToken
+
+                localStorage.setItem('accessToken', newAccessToken )
+
+                console.log('Access Token 재발급 성공')
+
+                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+                return api(originalRequest)
+
+            } catch (refreshError) {
+
+                console.error( 'Refresh Token 처리 실패', refreshError)
+                logout()
+
+                if (router.currentRoute.value.path !== '/login') {
+                    router.push('/login')
+                }
+
+                return Promise.reject(refreshError)
+            }
+        }
+
+        return Promise.reject(error)
+    }
 )
+
 export default api

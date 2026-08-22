@@ -35,8 +35,8 @@ const loadBoards = async () => {
 
   } catch (error) {
     console.error('게시글 조회 실패:', error)
-
     errorMessage.value = '게시글을 불러오지 못했습니다.'
+
   } finally {
     loading.value = false
   }

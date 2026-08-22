@@ -54,8 +54,9 @@ public class UserRestController {
             HttpSession session) {
 
         //Authentication authentication = userService.login(requestDto);
-        String token = userService.login(requestDto);
-        JwtResponse response = new JwtResponse(token);
+        //String token = userService.login(requestDto);
+        //JwtResponse response = new JwtResponse(token);
+        JwtResponse response = userService.login(requestDto);
 
         /*
         SecurityContext securityContext =
@@ -70,6 +71,21 @@ public class UserRestController {
                 securityContext
         );
         */
+
+        return ResponseEntity
+                .ok(ApiResponse.success(response));
+    }
+
+    @PostMapping("/refresh")
+    @Operation(
+            summary = "Access Token 재발급",
+            description = "유효한 Refresh Token을 이용하여 새로운 Access Token을 발급합니다."
+    )
+    public ResponseEntity<ApiResponse<JwtResponse>> refresh(
+            @RequestBody RefreshTokenRequest request
+    ) {
+        String refreshedAccessToken = userService.refreshAccessToken(request.getRefreshToken());
+        JwtResponse response = new JwtResponse(refreshedAccessToken, null );
 
         return ResponseEntity
                 .ok(ApiResponse.success(response));
